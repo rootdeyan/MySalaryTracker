@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>MySalaryTracker — Dark Glossy</title>
+
+  <!-- Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0f0f17;
+      --card:#1c1c28;
+      --muted:#9aa3b2;
+      --primary:#4f9cff;
+      --income:#4ade80;
+      --expense:#f87171;
+      --glass:rgba(255,255,255,0.04);
+      --radius:12px;
+      --row-height:72px;
+      --max-list-rows:5;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100%;
+      font-family:"Roboto",sans-serif;
+      background:var(--bg);
+      color:#e6eef8;
+      padding:18px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    /* App container */
+    .app {
+      width:100%;
+      max-width:980px;
+      background:linear-gradient(180deg,#161622,#1c1c28);
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      position:relative;
+      overflow:hidden;
+    }
+    .app::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(120deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
+      pointer-events:none;
+      border-radius:16px;
+    }
+
+    /* Header */
+    .header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .brand { display:flex; gap:12px; align-items:center; min-width:0; }
+    .logo {
+      width:48px; height:48px; border-radius:12px;
+      background:linear-gradient(135deg,var(--primary),#2b6fd6);
+      display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700;
+      box-shadow:0 8px 26px rgba(79,156,255,0.12);
+      flex:0 0 auto;
+    }
+    .brand h1 { margin:0; font-size:18px; font-weight:700; color:#f7fbff; white-space:nowrap; }
+    .brand .subtitle { font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; }
+
+    .header-right { display:flex; gap:12px; align-items:center; flex:0 0 auto; }
+    .balance {
+      display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border:1px solid rgba(255,255,255,0.03); min-width:0;
+    }
+    .balance .symbol { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(79,156,255,0.12), rgba(79,156,255,0.06)); color:var(--primary); font-size:18px; box-shadow:0 8px 24px rgba(79,156,255,0.06); flex:0 0 auto; }
+    .balance .amount { font-size:18px; font-weight:700; color:#fff; min-width:70px; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .main-currency {
+      display:flex; gap:8px; align-items:center; padding:6px 8px; border-radius:10px; background:var(--glass);
+      border:1px solid rgba(255,255,255,0.03); min-width:120px; max-width:220px;
+    }
+    .main-currency .label { color:var(--muted); font-size:12px; margin-right:6px; white-space:nowrap; }
+
+    /* order controls */
+    .order-controls { display:flex; gap:8px; align-items:center; }
+    .order-btn {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px;
+      background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); cursor:pointer;
+      font-size:13px;
+    }
+    .order-btn.active { border-color:var(--primary); color:#fff; background:rgba(79,156,255,0.04); }
+    .save-order-btn {
+      padding:8px 10px; border-radius:10px; border:0; background:linear-gradient(180deg,#2b6fd6,#1f57b8);
+      color:#fff; cursor:pointer; font-weight:700; font-size:13px;
+    }
+
+    .grid { display:grid; grid-template-columns: 1fr 360px; gap:18px; align-items:start; }
+
+    .left { display:flex; flex-direction:column; gap:12px; }
+
+    .form {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03);
+    }
+    .field { flex:1 1 160px; min-width:120px; }
+    /* Set input/select font-size to 16px to prevent iOS zoom on focus */
+    .input, .select {
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+      background:#23232f; color:inherit; font-size:16px; outline:none;
+      transition:box-shadow .15s, border-color .15s, transform .08s;
+    }
+    .input:focus, .select:focus { box-shadow:0 8px 24px rgba(79,156,255,0.08); border-color:var(--primary); transform:translateY(-1px); }
+
+    .select-wrap { position:relative; display:block; }
+    .select-wrap::after{
+      content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%); width:12px; height:12px; pointer-events:none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23bfcffb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+      background-repeat:no-repeat; background-position:center; opacity:0.9;
+    }
+    .select { -webkit-appearance:none; -moz-appearance:none; appearance:none; padding-right:36px; color:inherit; background:#23232f; }
+    select::-ms-expand { display:none; }
+
+    .btn {
+      padding:10px 14px; border-radius:10px; border:0; background:linear-gradient(180deg,var(--primary),#2b6fd6);
+      color:#fff; cursor:pointer; font-weight:700; box-shadow:0 10px 30px rgba(79,156,255,0.12);
+      transition:transform .12s, box-shadow .12s;
+    }
+    .btn:hover { transform:translateY(-3px); box-shadow:0 18px 44px rgba(79,156,255,0.16); }
+
+    /* Transactions list: show 5 rows and scroll if more */
+    .list {
+      border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.03);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      max-height: calc(var(--row-height) * var(--max-list-rows)); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .list::-webkit-scrollbar { width:10px; }
+    .list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius:8px; }
+    .list::-webkit-scrollbar-track { background: transparent; }
+
+    /* Row layout: give amount column a stable min width to avoid overlap */
+    .row {
+      display:grid; grid-template-columns: 1fr minmax(120px,160px) auto; gap:12px; align-items:center;
+      padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.02); min-height: var(--row-height);
+    }
+    .row:last-child { border-bottom:0; }
+    .row > div:first-child { min-width:0; }
+
+    .desc { color:#e6eef8; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .meta { color:var(--muted); font-size:13px; margin-top:6px; }
+    .amount { font-weight:700; min-width:120px; text-align:right; font-variant-numeric:tabular-nums; }
+    .amount.income { color:var(--income); }
+    .amount.expense { color:var(--expense); }
+    .converted { font-size:12px; color:var(--muted); margin-top:6px; text-align:right; }
+    .rate-badge { display:inline-block; margin-left:8px; font-size:12px; color:var(--muted); background:rgba(255,255,255,0.02); padding:4px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); }
+
+    .actions { display:flex; gap:8px; align-items:center; justify-self:end; z-index:2; }
+    .icon-btn { background:transparent; border:0; color:var(--muted); cursor:pointer; padding:6px; border-radius:8px; transition:background .12s, color .12s, transform .08s; display:inline-flex; align-items:center; justify-content:center; }
+    .icon-btn:hover { background:rgba(255,255,255,0.02); color:var(--primary); transform:translateY(-2px); }
+
+    .right { display:flex; flex-direction:column; gap:12px; }
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); }
+    .panel h3 { margin:0 0 8px 0; font-size:14px; color:#fff; }
+    .rates { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .rates .small { color:var(--muted); font-size:13px; }
+    .rates .big { font-weight:700; font-size:18px; color:#fff; }
+
+    .edit-bar { display:flex; gap:8px; align-items:center; color:var(--muted); font-size:13px; margin-top:6px; }
+    .cancel-btn { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); padding:6px 10px; border-radius:8px; cursor:pointer; }
+    .cancel-btn:hover { color:#fff; border-color:var(--primary); }
+
+    .empty { padding:18px; text-align:center; color:var(--muted); }
+
+    select option { background:#23232f; color:#e6eef8; padding:6px 10px; }
+
+    /* Responsive adjustments */
+    @media (max-width:920px){
+      .grid { grid-template-columns: 1fr; }
+      .right { order:-1; } /* move live exchange panel to top */
+      .left { order:1; }
+      .header { align-items:center; gap:10px; }
+      .header-right { gap:8px; align-items:center; }
+      .main-currency { min-width:110px; max-width:220px; }
+      .main-currency .select { min-width:90px; }
+      .desc { white-space:normal; overflow:visible; text-overflow:unset; }
+      .row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-items:start; min-height: auto; }
+      .row > div:first-child { grid-column: 1 / 2; grid-row: 1 / 2; }
+      .row > .actions { grid-column: 2 / 3; grid-row: 1 / 3; align-self:center; }
+      .row > div:nth-child(2) { grid-column: 2 / 3; grid-row: 2 / 3; text-align:right; }
+      .actions { justify-self:end; }
+      .list { max-height: calc(var(--row-height) * var(--max-list-rows)); }
+    }
+
+    @media (max-width:520px){
+      .balance .amount { font-size:16px; }
+      .logo { width:40px; height:40px; font-size:14px; }
+      .main-currency { min-width:100px; }
+      .form { gap:8px; padding:10px; }
+      .input, .select { padding:8px 10px; font-size:16px; } /* keep 16px to avoid zoom */
+      .btn { padding:8px 12px; font-size:14px; }
+      :root { --row-height:64px; }
+      .list { max-height: calc(var(--row-height) * var(--max-list-rows)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="MySalaryTracker">
+    <div class="header">
+      <div class="brand" aria-hidden="false">
+        <div class="logo">MS</div>
+        <div style="min-width:0">
+          <h1>MySalaryTracker</h1>
+          <div class="subtitle">Dark glossy • Roboto</div>
+        </div>
+      </div>
+
+      <div class="header-right" role="region" aria-label="Controls">
+        <div class="order-controls" title="Order controls">
+          <button id="toggle-order" class="order-btn" aria-pressed="true" title="Toggle newest/oldest">
+            <i id="toggle-icon" class="fa-solid fa-arrow-down-wide-short"></i>
+            <span id="toggle-label">Newest on top</span>
+          </button>
+          <button id="save-order" class="save-order-btn" title="Save current display order to storage">Save order</button>
+        </div>
+
+        <div class="main-currency" title="Select main display currency">
+          <div class="label">Main</div>
+          <div class="select-wrap" style="min-width:90px;">
+            <select id="main-currency" class="select" aria-label="Main currency">
+              <option value="BGN" data-symbol="лв">лв BGN</option>
+              <option value="EUR" data-symbol="€">€ EUR</option>
+              <option value="USD" data-symbol="$">$ USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="balance" aria-live="polite">
+          <div class="symbol" id="balance-symbol"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="amount" id="balance-amount">0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="left">
+        <form id="transaction-form" class="form" autocomplete="off" novalidate>
+          <div class="field"><input id="desc" class="input" type="text" placeholder="Description" required></div>
+          <div class="field"><input id="amount" class="input" type="number" step="0.01" placeholder="Amount" required></div>
+
+          <div style="min-width:120px" class="select-wrap">
+            <select id="type" class="select" aria-label="Type">
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <div style="min-width:140px" class="select-wrap">
+            <select id="currency-select" class="select" aria-label="Currency for this transaction">
+              <option value="BGN" data-symbol="лв">лв BGN</option>
+              <option value="EUR" data-symbol="€">€ EUR</option>
+              <option value="USD" data-symbol="$">$ USD</option>
+            </select>
+          </div>
+
+          <div>
+            <button class="btn" type="submit" id="submit-btn">Add</button>
+          </div>
+        </form>
+
+        <div id="edit-bar" class="edit-bar" style="display:none">
+          <div>Editing transaction — press Save to update</div>
+          <button id="cancel-edit" class="cancel-btn" type="button">Cancel</button>
+        </div>
+
+        <div class="list" id="transactions-list" role="list" aria-live="polite">
+          <div class="empty" id="empty">No transactions yet. Add income or expense to get started.</div>
+        </div>
+      </div>
+
+      <div class="right" aria-live="polite">
+        <div class="panel" id="live-exchange-panel">
+          <h3>Live Exchange (1 unit)</h3>
+          <div class="rates" style="align-items:center">
+            <div style="min-width:120px">
+              <div class="small">Base</div>
+              <div class="select-wrap" style="margin-top:6px">
+                <select id="rate-base" class="select" aria-label="Rate base">
+                  <option value="BGN" data-symbol="лв">лв BGN</option>
+                  <option value="EUR" data-symbol="€">€ EUR</option>
+                  <option value="USD" data-symbol="$">$ USD</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="min-width:120px">
+              <div class="small">Target</div>
+              <div class="select-wrap" style="margin-top:6px">
+                <select id="rate-target" class="select" aria-label="Rate target">
+                  <option value="BGN" data-symbol="лв">лв BGN</option>
+                  <option value="EUR" data-symbol="€">€ EUR</option>
+                  <option value="USD" data-symbol="$">$ USD</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-left:8px">
+              <div class="small">Result</div>
+              <div class="big" id="rate-output">—</div>
+            </div>
+
+            <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+              <button id="rate-refresh" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);box-shadow:none;padding:8px 10px">Refresh</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete script (paste before closing body) -->
+  <script>
+  /*
+    MySalaryTracker — Complete client-side script
+    - Handles transactions, ordering, cached exchange rates
+    - Mobile/responsive fixes to avoid overlaps and input zoom
+    - Safe guards if some DOM elements are missing (no hard crash)
+    NOTE: Embedding API keys client-side exposes them publicly. For production, use a server proxy.
+  */
+  (function () {
+    const EXR_API_KEY = '3e82b57919e4dad8d625fb4493a4e86d';
+    const TRANSACTIONS_KEY = 'mst_transactions';
+    const MAIN_CURRENCY_KEY = 'mst_main_currency';
+    const CACHE_PREFIX = 'mst_rate_cache_v1';
+    const ORDER_PREF_KEY = 'mst_order_newest_first';
+    const RATE_API = 'https://api.exchangerate.host/convert';
+    const MOBILE_BREAKPOINT = 520;
+
+    // Safe selector helpers
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+    // DOM references (may be missing if HTML differs)
+    const form = $('#transaction-form');
+    const descInput = $('#desc');
+    const amountInput = $('#amount');
+    const typeSelect = $('#type');
+    const currencySelect = $('#currency-select');
+    const submitBtn = $('#submit-btn');
+
+    const transactionsList = $('#transactions-list');
+    const emptyEl = $('#empty');
+    const editBar = $('#edit-bar');
+    const cancelEditBtn = $('#cancel-edit');
+
+    const balanceAmountEl = $('#balance-amount');
+    const balanceSymbolEl = $('#balance-symbol');
+
+    const mainCurrencySelect = $('#main-currency');
+    const rateBase = $('#rate-base');
+    const rateTarget = $('#rate-target');
+    const rateOutput = $('#rate-output');
+    const rateRefresh = $('#rate-refresh');
+
+    const toggleOrderBtn = $('#toggle-order');
+    const toggleIcon = $('#toggle-icon');
+    const toggleLabel = $('#toggle-label');
+    const saveOrderBtn = $('#save-order');
+
+    // Fallbacks: create minimal elements if missing so script doesn't break
+    function ensureElement(selector, tag = 'div', attrs = {}) {
+      let el = $(selector);
+      if (!el) {
+        el = document.createElement(tag);
+        Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+
+    // Ensure critical elements exist
+    const _transactionsList = transactionsList || ensureElement('#transactions-list', 'div', { id: 'transactions-list' });
+    const _emptyEl = emptyEl || ensureElement('#empty', 'div', { id: 'empty' });
+    const _mainCurrencySelect = mainCurrencySelect || ensureElement('#main-currency', 'select', { id: 'main-currency' });
+    const _rateBase = rateBase || ensureElement('#rate-base', 'select', { id: 'rate-base' });
+    const _rateTarget = rateTarget || ensureElement('#rate-target', 'select', { id: 'rate-target' });
+    const _rateOutput = rateOutput || ensureElement('#rate-output', 'div', { id: 'rate-output' });
+    const _balanceAmountEl = balanceAmountEl || ensureElement('#balance-amount', 'div', { id: 'balance-amount' });
+    const _balanceSymbolEl = balanceSymbolEl || ensureElement('#balance-symbol', 'div', { id: 'balance-symbol' });
+
+    // State
+    let transactions = JSON.parse(localStorage.getItem(TRANSACTIONS_KEY) || '[]');
+    let displayNewestFirst = JSON.parse(localStorage.getItem(ORDER_PREF_KEY) || 'true');
+    let editIndex = null;
+
+    // Helpers
+    function getSymbolFromOption(select) {
+      try { return select.selectedOptions[0].dataset.symbol || ''; } catch { return ''; }
+    }
+    function persistTransactions() {
+      try { localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions)); } catch (e) { /* ignore */ }
+    }
+    function saveOrderPreference(val) {
+      try { localStorage.setItem(ORDER_PREF_KEY, JSON.stringify(val)); } catch (e) { /* ignore */ }
+    }
+    function formatDateShort(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return '—';
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = String(d.getFullYear()).slice(-2);
+        return `${dd}/${mm}/${yy}`;
+      } catch { return '—'; }
+    }
+
+    // Rate fetch + cache
+    async function fetchRate(base, target) {
+      try {
+        const url = `${RATE_API}?from=${encodeURIComponent(base)}&to=${encodeURIComponent(target)}&amount=1&access_key=${encodeURIComponent(EXR_API_KEY)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network ' + res.status);
+        const data = await res.json();
+        if (data && data.success === false && data.error) throw new Error(data.error.info || data.error.type || JSON.stringify(data.error));
+        return (typeof data.result === 'number') ? data.result : null;
+      } catch (err) {
+        console.warn('fetchRate error', err);
+        return null;
+      }
+    }
+    function cacheGet(key) {
+      try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch { return null; }
+    }
+    function cacheSet(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+    }
+    function getCachedRate(base, target) {
+      const key = `${CACHE_PREFIX}_${base}_${target}`;
+      const cached = cacheGet(key);
+      if (cached && (Date.now() - cached.ts < 1000 * 60 * 60)) return cached.value;
+      return null;
+    }
+    async function fetchAndCacheRate(base, target) {
+      const key = `${CACHE_PREFIX}_${base}_${target}`;
+      const r = await fetchRate(base, target);
+      if (r !== null) cacheSet(key, { value: r, ts: Date.now() });
+      return r;
+    }
+    async function ensureRatesForMain(main) {
+      const distinct = [...new Set(transactions.map(t => t.currency))].filter(c => c && c !== main);
+      if (!distinct.length) return;
+      await Promise.all(distinct.map(async (from) => {
+        const cached = getCachedRate(from, main);
+        if (cached === null) await fetchAndCacheRate(from, main);
+      }));
+    }
+
+    // Ordering helpers
+    function toggleBtnActive(active) {
+      if (!toggleOrderBtn) return;
+      if (active) {
+        toggleOrderBtn.classList.add('active');
+        toggleOrderBtn.setAttribute('aria-pressed', 'true');
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-arrow-down-wide-short';
+        if (toggleLabel) toggleLabel.textContent = 'Newest on top';
+      } else {
+        toggleOrderBtn.classList.remove('active');
+        toggleOrderBtn.setAttribute('aria-pressed', 'false');
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-arrow-up-wide-short';
+        if (toggleLabel) toggleLabel.textContent = 'Oldest on top';
+      }
+    }
+    function setToggleUI() { toggleBtnActive(displayNewestFirst); }
+    function getDisplayArray() { return displayNewestFirst ? transactions.slice() : transactions.slice().reverse(); }
+    function applyAndSaveOrder() {
+      if (displayNewestFirst) {
+        if (transactions.length > 1) {
+          const firstDate = new Date(transactions[0].date).getTime();
+          const lastDate = new Date(transactions[transactions.length - 1].date).getTime();
+          if (firstDate < lastDate) transactions.reverse();
+        }
+      } else {
+        if (transactions.length > 1) {
+          const firstDate = new Date(transactions[0].date).getTime();
+          const lastDate = new Date(transactions[transactions.length - 1].date).getTime();
+          if (firstDate > lastDate) transactions.reverse();
+        }
+      }
+      persistTransactions();
+      if (saveOrderBtn) {
+        const prev = saveOrderBtn.textContent;
+        saveOrderBtn.textContent = 'Saved';
+        setTimeout(() => { saveOrderBtn.textContent = prev || 'Save order'; }, 1200);
+      }
+    }
+
+    // Responsive CSS injection (ensures spacing and avoids overlap)
+    const injectedStyleId = 'mst-mobile-fixes-style';
+    function injectResponsiveCSS() {
+      if (document.getElementById(injectedStyleId)) return;
+      const css = `
+        /* Responsive tweaks injected by script */
+        .header-right { gap:10px; align-items:center; }
+        .order-controls { display:flex; gap:8px; align-items:center; }
+        .main-currency { flex:0 0 auto; min-width:110px; max-width:220px; }
+        .main-currency .select { min-width:90px; }
+        .row { grid-template-columns: 1fr minmax(140px,180px) auto !important; }
+        .actions { gap:10px !important; padding-left:8px; }
+        .icon-btn { padding:8px !important; }
+        @media (max-width: ${MOBILE_BREAKPOINT}px) {
+          .row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-items:start; min-height: auto; }
+          .row > div:first-child { grid-column: 1 / 2; grid-row: 1 / 2; }
+          .row > .actions { grid-column: 2 / 3; grid-row: 1 / 3; align-self:center; }
+          .row > div:nth-child(2) { grid-column: 2 / 3; grid-row: 2 / 3; text-align:right; }
+          .desc { white-space:normal; overflow:visible; }
+          .main-currency { min-width:100px; }
+        }
+      `;
+      const style = document.createElement('style');
+      style.id = injectedStyleId;
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+    }
+
+    // Move order-controls into left column on small screens to avoid header overflow
+    function adjustHeaderControlsForViewport() {
+      const orderControls = document.querySelector('.order-controls');
+      const leftColumn = document.querySelector('.left');
+      const headerRight = document.querySelector('.header-right');
+      if (!orderControls || !leftColumn || !headerRight) return;
+      if (window.innerWidth <= MOBILE_BREAKPOINT) {
+        if (!leftColumn.contains(orderControls)) leftColumn.insertBefore(orderControls, leftColumn.firstChild);
+      } else {
+        if (!headerRight.contains(orderControls)) headerRight.insertBefore(orderControls, headerRight.firstChild);
+      }
+    }
+
+    // Normalize spacing after rendering rows
+    function normalizeRowSpacing() {
+      $$('.row').forEach(row => {
+        const actions = row.querySelector('.actions');
+        if (actions) actions.style.marginLeft = '8px';
+      });
+    }
+
+    // Render transactions
+    async function renderTransactions() {
+      const listEl = _transactionsList;
+      listEl.innerHTML = '';
+      if (!transactions.length) {
+        if (_emptyEl) {
+          _emptyEl.style.display = 'block';
+          _emptyEl.textContent = 'No transactions yet. Add income or expense to get started.';
+          listEl.appendChild(_emptyEl);
+        }
+      } else {
+        if (_emptyEl) _emptyEl.style.display = 'none';
+      }
+
+      const main = (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+      const mainSymbol = getSymbolFromOption(_mainCurrencySelect || mainCurrencySelect);
+      if (_balanceSymbolEl) _balanceSymbolEl.innerHTML = mainSymbol ? `<span style="font-size:16px;color:var(--primary)">${mainSymbol}</span>` : '';
+      let balanceMain = 0;
+
+      const displayArr = getDisplayArray();
+
+      for (let i = 0; i < displayArr.length; i++) {
+        const t = displayArr[i];
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.flexDirection = 'column';
+        left.style.minWidth = '0';
+
+        const desc = document.createElement('div');
+        desc.className = 'desc';
+        desc.textContent = t.desc;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = `${t.currency} • ${formatDateShort(t.date)}`;
+
+        left.appendChild(desc);
+        left.appendChild(meta);
+
+        const rightWrap = document.createElement('div');
+        rightWrap.style.display = 'flex';
+        rightWrap.style.flexDirection = 'column';
+        rightWrap.style.alignItems = 'flex-end';
+
+        const amount = document.createElement('div');
+        amount.className = 'amount ' + (t.type === 'income' ? 'income' : 'expense');
+        amount.textContent = `${t.type === 'income' ? '+' : '-'}${t.symbol} ${Number(t.amount).toFixed(2)}`;
+
+        rightWrap.appendChild(amount);
+
+        if (t.currency !== main) {
+          const cachedRate = getCachedRate(t.currency, main);
+          const convEl = document.createElement('div');
+          convEl.className = 'converted';
+          if (cachedRate === null) {
+            convEl.textContent = `conversion unavailable`;
+          } else {
+            const converted = Number(t.amount) * Number(cachedRate);
+            const sign = t.type === 'income' ? '+' : '-';
+            convEl.innerHTML = `${sign}${mainSymbol} ${converted.toFixed(2)} <span class="rate-badge">1 ${t.currency} = ${mainSymbol} ${Number(cachedRate).toFixed(4)}</span>`;
+            balanceMain += (t.type === 'income' ? converted : -converted);
+          }
+          rightWrap.appendChild(convEl);
+        } else {
+          balanceMain += (t.type === 'income' ? Number(t.amount) : -Number(t.amount));
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        let storageIndex;
+        if (displayNewestFirst) storageIndex = i;
+        else storageIndex = transactions.length - 1 - i;
+
+        actions.innerHTML = `
+          <button class="icon-btn" data-idx="${storageIndex}" data-action="edit" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button class="icon-btn" data-idx="${storageIndex}" data-action="delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        `;
+
+        row.appendChild(left);
+        row.appendChild(rightWrap);
+        row.appendChild(actions);
+
+        listEl.appendChild(row);
+      }
+
+      if (_balanceAmountEl) _balanceAmountEl.textContent = Number(balanceMain).toFixed(2);
+
+      // Attach handlers
+      $$('.icon-btn').forEach(btn => {
+        btn.onclick = () => {
+          const idx = Number(btn.dataset.idx);
+          const action = btn.dataset.action;
+          if (action === 'edit') startEdit(idx);
+          if (action === 'delete') removeTransaction(idx);
+        };
+      });
+
+      normalizeRowSpacing();
+      persistTransactions();
+    }
+
+    // Form handlers
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const desc = descInput?.value?.trim() || '';
+        const amount = parseFloat(amountInput?.value || '0');
+        const type = typeSelect?.value || 'income';
+        const currency = currencySelect?.value || (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+        const symbol = (currencySelect?.selectedOptions?.[0]?.dataset?.symbol) || (getSymbolFromOption(_mainCurrencySelect || mainCurrencySelect)) || '';
+
+        if (!desc || Number.isNaN(amount)) return;
+
+        if (editIndex !== null) {
+          const originalDate = transactions[editIndex]?.date || new Date().toISOString();
+          transactions[editIndex] = { desc, amount: Number(amount), type, currency, symbol, date: originalDate };
+          editIndex = null;
+          if (submitBtn) submitBtn.textContent = 'Add';
+          if (editBar) editBar.style.display = 'none';
+        } else {
+          const nowIso = new Date().toISOString();
+          if (displayNewestFirst) transactions.unshift({ desc, amount: Number(amount), type, currency, symbol, date: nowIso });
+          else transactions.push({ desc, amount: Number(amount), type, currency, symbol, date: nowIso });
+        }
+
+        if (form.reset) form.reset();
+        if (currencySelect) currencySelect.value = (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+        await renderTransactions();
+      });
+    }
+
+    function removeTransaction(storageIndex) {
+      if (!confirm('Delete this transaction?')) return;
+      transactions.splice(storageIndex, 1);
+      if (editIndex === storageIndex) cancelEdit();
+      if (editIndex !== null && editIndex > storageIndex) editIndex--;
+      renderTransactions();
+    }
+
+    function startEdit(storageIndex) {
+      const t = transactions[storageIndex];
+      if (!t) return;
+      if (descInput) descInput.value = t.desc;
+      if (amountInput) amountInput.value = t.amount;
+      if (typeSelect) typeSelect.value = t.type;
+      if (currencySelect) currencySelect.value = t.currency;
+      editIndex = storageIndex;
+      if (submitBtn) submitBtn.textContent = 'Save';
+      if (editBar) editBar.style.display = 'flex';
+      if (descInput && descInput.scrollIntoView) descInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function cancelEdit() {
+      editIndex = null;
+      if (form && form.reset) form.reset();
+      if (currencySelect) currencySelect.value = (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+      if (submitBtn) submitBtn.textContent = 'Add';
+      if (editBar) editBar.style.display = 'none';
+    }
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', cancelEdit);
+
+    // Live exchange UI
+    async function updateRateUI() {
+      const base = (_rateBase || rateBase).value || 'BGN';
+      const target = (_rateTarget || rateTarget).value || 'EUR';
+      if (_rateOutput) _rateOutput.textContent = '…';
+
+      const cached = getCachedRate(base, target);
+      if (cached !== null) {
+        if (_rateOutput) _rateOutput.textContent = `${getSymbolFromOption(_rateTarget || rateTarget)} ${Number(cached).toFixed(4)}`;
+      }
+
+      const r = await fetchAndCacheRate(base, target);
+      if (r === null) {
+        if (cached === null && _rateOutput) _rateOutput.textContent = 'offline';
+      } else {
+        if (_rateOutput) _rateOutput.textContent = `${getSymbolFromOption(_rateTarget || rateTarget)} ${Number(r).toFixed(4)}`;
+      }
+    }
+
+    // Wiring for order controls and rates (if elements exist)
+    if (toggleOrderBtn) {
+      toggleOrderBtn.addEventListener('click', () => {
+        displayNewestFirst = !displayNewestFirst;
+        saveOrderPreference(displayNewestFirst);
+        setToggleUI();
+        renderTransactions();
+      });
+    }
+    if (saveOrderBtn) {
+      saveOrderBtn.addEventListener('click', () => {
+        applyAndSaveOrder();
+        renderTransactions();
+      });
+    }
+    if (_mainCurrencySelect) {
+      _mainCurrencySelect.addEventListener('change', async () => {
+        const val = _mainCurrencySelect.value;
+        try { localStorage.setItem(MAIN_CURRENCY_KEY, val); } catch {}
+        if (_rateBase) _rateBase.value = val;
+        if (currencySelect) currencySelect.value = val;
+        await ensureRatesForMain(val);
+        await renderTransactions();
+        await updateRateUI();
+      });
+    }
+    if (_rateBase) {
+      _rateBase.addEventListener('change', async () => {
+        if (_mainCurrencySelect) _mainCurrencySelect.value = _rateBase.value;
+        try { localStorage.setItem(MAIN_CURRENCY_KEY, _rateBase.value); } catch {}
+        if (currencySelect) currencySelect.value = _rateBase.value;
+        await ensureRatesForMain(_rateBase.value);
+        await renderTransactions();
+        await updateRateUI();
+      });
+    }
+    if (_rateTarget) _rateTarget.addEventListener('change', updateRateUI);
+    if (rateRefresh) rateRefresh.addEventListener('click', (e) => { e && e.preventDefault(); updateRateUI(); });
+
+    // Responsive initialization and handlers
+    function adjustLayout() {
+      injectResponsiveCSS();
+      adjustHeaderControlsForViewport();
+      normalizeRowSpacing();
+    }
+    injectResponsiveCSS();
+    adjustLayout();
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(adjustLayout, 120);
+    });
+
+    // Init
+    (function init() {
+      displayNewestFirst = JSON.parse(localStorage.getItem(ORDER_PREF_KEY) || 'true');
+      setToggleUI();
+
+      const storedMain = (function () { try { return localStorage.getItem(MAIN_CURRENCY_KEY) || null; } catch { return null; } })();
+      if (storedMain && _mainCurrencySelect) _mainCurrencySelect.value = storedMain;
+      else if (_mainCurrencySelect) { _mainCurrencySelect.value = 'BGN'; try { localStorage.setItem(MAIN_CURRENCY_KEY, 'BGN'); } catch {} }
+
+      if (_rateBase) _rateBase.value = (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+      if (currencySelect) currencySelect.value = (_mainCurrencySelect || mainCurrencySelect).value || 'BGN';
+
+      renderTransactions();
+
+      const cachedPair = getCachedRate((_rateBase || rateBase).value || 'BGN', (_rateTarget || rateTarget).value || 'EUR');
+      if (cachedPair !== null && _rateOutput) _rateOutput.textContent = `${getSymbolFromOption(_rateTarget || rateTarget)} ${Number(cachedPair).toFixed(4)}`;
+      else if (_rateOutput) _rateOutput.textContent = '—';
+    })();
+
+    // Accessibility & mobile niceties
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (descInput) descInput.focus();
+      }
+    });
+    // Prevent double-tap zoom on iOS
+    document.addEventListener('touchstart', function (e) {
+      if (e.touches && e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+  })();
+  </script>
+</body>
+</html>
