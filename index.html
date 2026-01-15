@@ -70,8 +70,8 @@
       --expense: #ef4444;
       --expense-rgb: 239, 68, 68;
       --border: #d1d5db;
-      --edit: #3b82f6;
-      --delete: #ef4444;
+      --edit: #1e40af;
+      --delete: #dc2626;
       --income-bg: rgba(16, 185, 129, 0.1);
       --expense-bg: rgba(239, 68, 68, 0.1);
     }
@@ -230,7 +230,7 @@
     .actions { display: flex; gap: 6px; justify-content: flex-end; align-self: flex-start; }
     .btn-small {
       background: transparent;
-      border: 1px solid #444;
+      border: 2px solid #444;
       width: 32px;
       height: 32px;
       border-radius: 6px;
@@ -243,11 +243,14 @@
       transition: all 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    [data-theme="light"] .btn-small { border-color: #ccc; }
     .btn-edit { border-color: var(--edit); color: var(--edit); }
     .btn-delete { border-color: var(--delete); color: var(--delete); }
+    [data-theme="light"] .btn-edit { border-color: var(--edit); color: var(--edit); background: white; }
+    [data-theme="light"] .btn-delete { border-color: var(--delete); color: var(--delete); background: white; }
     .btn-edit:hover { background: rgba(96,165,250,0.2); transform: scale(1.1); }
     .btn-delete:hover { background: rgba(248,113,113,0.2); transform: scale(1.1); }
+    [data-theme="light"] .btn-edit:hover { transform: scale(1.1); background: #dbeafe; border-color: var(--edit); color: var(--edit); }
+    [data-theme="light"] .btn-delete:hover { transform: scale(1.1); background: #fee2e2; border-color: var(--delete); color: var(--delete); }
     .btn-small:active { transform: scale(0.95); }
     .empty-month { padding: 16px; color: var(--text2); text-align: center; font-style: italic; font-size: 0.9rem; }
     .indicator { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; z-index: 1000; }
