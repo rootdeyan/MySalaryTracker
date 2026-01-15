@@ -127,9 +127,3 @@ Edit in `index.html`:
 - Lighthouse Score: 95+
 - Mobile Friendly: Yes
 - Accessibility Score: 90+
-
----
-**Version**: 2.0 Optimized
-**Date**: January 2026
-**Language**: English (also supports Italian)
-**Author**: Salary Tracker Team
