@@ -10,4 +10,4 @@ User-agent: SemrushBot
 User-agent: DotBot
 Disallow: /
 
-Sitemap: https://yoursite.com/sitemap.xml
+Sitemap: https://rootdeyan.github.io/MySalaryTracker/
