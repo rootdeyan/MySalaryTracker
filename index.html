@@ -2,15 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Simple client-side salary tracker app to manage monthly income, expenses, and balances in EUR with BGN conversion.">
-  <meta name="keywords" content="salary tracker, expense tracker, budget app, personal finance, monthly budget, income expense manager">
-  <meta name="robots" content="noindex, nofollow">
-  <meta property="og:title" content="Salary Tracker">
-  <meta property="og:description" content="Track your salary, income, and expenses monthly with carry-over balances.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Free personal salary tracker app. Manage monthly income, expenses, balances in EUR/BGN with secure client-side storage. No signup required.">
+  <meta name="keywords" content="salary tracker, expense tracker, budget app, personal finance, monthly budget, income expense manager, EUR to BGN, financial tracker">
+  <meta name="author" content="Salary Tracker">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="application-name" content="Salary Tracker">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0d0d18">
+  <meta property="og:title" content="Salary Tracker - Free Personal Finance Manager">
+  <meta property="og:description" content="Manage your salary, income, and expenses with automatic carry-over balances. EUR to BGN conversion included.">
   <meta property="og:type" content="website">
-  <title>Salary Tracker</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Salary Tracker - Free Personal Finance Manager">
+  <meta name="twitter:description" content="Track your salary and expenses with monthly carry-over balances. Secure, offline-first, no signup.">
+  <title>Salary Tracker - Free Personal Expense & Income Manager</title>
+  <link rel="canonical" href="https://yoursite.com/salary-tracker/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2360a5fa'>₹</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Salary Tracker",
+    "description": "Free personal salary and expense tracker with monthly balance carry-over",
+    "url": "https://yoursite.com/salary-tracker/",
+    "applicationCategory": "FinanceApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Salary Tracker"
+    }
+  }
+  </script>
   <style>
     :root {
       --bg: #0d0d18;
@@ -45,14 +75,16 @@
       --income-bg: rgba(16, 185, 129, 0.1);
       --expense-bg: rgba(239, 68, 68, 0.1);
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 12px;
       overflow-y: auto;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .container { max-width: 720px; margin: 0 auto; }
     .theme-wrapper {
@@ -73,19 +105,17 @@
       align-items: center;
       justify-content: center;
       transition: background 0.3s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .theme-toggle:hover {
-      background: var(--primary);
-      color: white;
-      transform: scale(1.05);
-    }
+    .theme-toggle:hover { background: var(--primary); color: white; transform: scale(1.05); }
+    .theme-toggle:active { transform: scale(0.95); }
     header {
       margin-bottom: 1.2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    h1 { font-size: 1.6rem; font-weight: 600; }
+    h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.5px; }
     .subtitle { color: var(--text2); font-size: 0.9rem; }
     .form {
       background: var(--surface);
@@ -106,27 +136,15 @@
       font-size: 14px;
       min-height: 36px;
       line-height: 1.2;
+      transition: all 0.2s ease;
     }
-    [data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] button {
-      background: #ffffff;
-    }
-    input:focus, select:focus { outline: none; }
-    input[type=number] {
-      width: 100px;
-      appearance: textfield;
-      -moz-appearance: textfield;
-    }
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
+    [data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] button { background: #ffffff; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(96,165,250,0.1); }
+    input[type=number] { width: 100px; appearance: textfield; -moz-appearance: textfield; }
+    input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[placeholder] { color: var(--text2); }
     select { min-width: 90px; }
-    select option {
-      background: var(--surface);
-      color: var(--text);
-    }
+    select option { background: var(--surface); color: var(--text); }
     button {
       background: var(--primary);
       border: none;
@@ -134,7 +152,10 @@
       font-weight: 600;
       cursor: pointer;
       min-width: 70px;
+      -webkit-tap-highlight-color: transparent;
     }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
     .income-select { background: var(--income-bg); border-color: var(--income); }
     .expense-select { background: var(--expense-bg); border-color: var(--expense); }
     .desc-field { flex: 3 1 180px; }
@@ -146,7 +167,9 @@
       margin-bottom: 1.2rem;
       border: 1px solid var(--border);
       overflow: hidden;
+      animation: fadeIn 0.3s ease;
     }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .month-header {
       padding: 10px 14px;
       background: #1e2238;
@@ -170,6 +193,7 @@
     .transactions-list {
       max-height: 150px;
       overflow-y: auto;
+      will-change: scroll-position;
     }
     .transactions-list::-webkit-scrollbar { width: 5px; }
     .transactions-list::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -178,17 +202,19 @@
       padding: 8px 14px;
       border-top: 1px solid var(--border);
       display: grid;
-      gap: 4px 10px;
-      grid-template-columns: 1fr 220px 100px;
-      align-items: center;
+      gap: 10px;
+      grid-template-columns: 1fr auto auto;
+      align-items: flex-start;
+      animation: slideIn 0.2s ease;
     }
-    .desc { font-size: 0.95rem; line-height: 1.3; }
-    .meta { font-size: 0.74rem; color: var(--text2); }
-    .amt { text-align: right; font-weight: 500; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    .desc { font-size: 0.95rem; line-height: 1.3; word-break: break-word; }
+    .meta { font-size: 0.74rem; color: var(--text2); margin-top: 2px; }
+    .amt { text-align: right; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .income { color: var(--income); }
     .expense { color: var(--expense); }
-    .bgn { font-size: 0.78rem; color: var(--text2); text-align: right; }
-    .actions { display: flex; gap: 6px; justify-content: flex-end; align-self: end; }
+    .bgn { font-size: 0.78rem; color: var(--text2); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; margin-top: 2px; }
+    .actions { display: flex; gap: 6px; justify-content: flex-end; align-self: flex-start; }
     .btn-small {
       background: transparent;
       border: 1px solid #444;
@@ -201,17 +227,23 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
     }
     [data-theme="light"] .btn-small { border-color: #ccc; }
     .btn-edit { border-color: var(--edit); color: var(--edit); }
     .btn-delete { border-color: var(--delete); color: var(--delete); }
-    .btn-edit:hover { background: rgba(96,165,250,0.2); }
-    .btn-delete:hover { background: rgba(248,113,113,0.2); }
+    .btn-edit:hover { background: rgba(96,165,250,0.2); transform: scale(1.1); }
+    .btn-delete:hover { background: rgba(248,113,113,0.2); transform: scale(1.1); }
+    .btn-small:active { transform: scale(0.95); }
     .empty-month { padding: 16px; color: var(--text2); text-align: center; font-style: italic; font-size: 0.9rem; }
+    .indicator { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; z-index: 1000; }
+    .indicator.show { display: block; animation: slideInUp 0.3s ease; }
+    @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 560px) {
       body { padding: 10px; }
       .form { padding: 12px; flex-direction: column; gap: 8px; }
-      input, select, button { width: 100%; max-height: 44px; font-size: 16px; padding: 0px 12px; }
+      input, select, button { width: 100%; max-height: 44px; font-size: 16px; padding: 12px; }
       .row {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
@@ -222,184 +254,434 @@
       .btn-small { width: 40px; height: 40px; font-size: 1rem; }
       .amt, .bgn { text-align: left; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body data-theme="dark">
 <div class="container">
   <div class="theme-wrapper">
-    <button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-moon"></i></button>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
   </div>
   <header>
-    <h1>Salary Tracker</h1>
+    <h1>💰 Salary Tracker</h1>
   </header>
-  <div class="form">
-    <input id="desc" class="desc-field" placeholder="Description">
-    <input id="amount" class="amount-field" type="number" step="0.01" min="0.01" placeholder="Amount" inputmode="decimal">
-    <select id="type" class="type-field">
+  <div class="form" role="form" aria-label="Add transaction">
+    <input id="desc" class="desc-field" placeholder="Description" aria-label="Transaction description" maxlength="100">
+    <input id="amount" class="amount-field" type="number" step="0.01" min="0.01" max="999999.99" placeholder="Amount" inputmode="decimal" aria-label="Transaction amount">
+    <select id="type" class="type-field" aria-label="Transaction type">
       <option value="income">Income</option>
       <option value="expense">Expense</option>
     </select>
-    <button id="add">Add</button>
+    <button id="add" aria-label="Add transaction">Add</button>
   </div>
-  <div id="months"></div>
+  <div id="months" role="region" aria-label="Transactions by month"></div>
+  <div id="indicator" class="indicator" role="status" aria-live="polite"></div>
 </div>
 <script>
-const STORAGE_KEY = 'salary-tracker-monthly-v3';
-const THEME_KEY = 'salary-tracker-theme';
-const EUR_TO_BGN = 1.95583;
-let months = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-let editing = null;
-function getMonthKey(d = new Date()) {
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-}
-function getOrCreateMonth(key) {
-  if (!months[key]) {
-    let carry = 0;
-    const [y,m] = key.split('-').map(Number);
-    let py=y, pm=m-1; if(pm===0){pm=12;py--;}
-    const pk = `${py}-${String(pm).padStart(2,'0')}`;
-    if(months[pk]) carry = months[pk].carry + months[pk].income - months[pk].expense;
-    months[key] = {income:0, expense:0, carry, tx:[]};
-  }
-  return months[key];
-}
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(months)); }
-function render() {
-  const c = document.getElementById('months');
-  c.innerHTML = '';
-  const keys = Object.keys(months).sort().reverse();
-  const ck = getMonthKey();
-  if(!keys.includes(ck)){ getOrCreateMonth(ck); keys.unshift(ck); }
-  keys.forEach(key => {
-    const m = months[key];
-    const final = m.carry + m.income - m.expense;
-    const isCur = key === ck;
-    const mo = document.createElement('div'); mo.className='month';
-    const h = document.createElement('div'); h.className='month-header';
-    h.innerHTML = `<div>${key}${isCur?' <small>(current)</small>':''}</div>`;
-    const totalDiv = document.createElement('div'); totalDiv.className='month-total';
-    totalDiv.innerHTML = `<span class="month-balance ${final>=0?'positive':'negative'}">${final.toFixed(2)} €</span>`;
-    const l = document.createElement('div');
-    l.className = 'transactions-list';
-    if (m.carry !== 0) {
-      const cr = document.createElement('div'); cr.className='row';
-      cr.innerHTML = `<div class="desc" style="color:var(--text2)">Carry from prev</div>
-        <div class="amt">${m.carry>=0?'+':''}${m.carry.toFixed(2)} €</div><div></div>`;
-      l.appendChild(cr);
+// Configuration & Constants
+const CONFIG = {
+  STORAGE_KEY: 'salary-tracker-monthly-v3',
+  THEME_KEY: 'salary-tracker-theme',
+  EUR_TO_BGN: 1.95583,
+  MAX_DESC_LENGTH: 100,
+  MAX_AMOUNT: 999999.99,
+  MIN_AMOUNT: 0.01,
+  RATE_LIMIT_MS: 300,
+  MAX_TRANSACTIONS_PER_MONTH: 1000,
+  DEBOUNCE_DELAY: 500,
+  SESSION_TIMEOUT_MS: 3600000 // 1 hour
+};
+
+// State Management
+const STATE = {
+  months: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || '{}'),
+  editing: null,
+  lastActionTime: Date.now(),
+  sessionId: Math.random().toString(36).substr(2, 9),
+  renderTimeout: null
+};
+
+// Utility: Rate Limiting & Security
+const Security = {
+  checkRateLimit() {
+    const now = Date.now();
+    if (now - STATE.lastActionTime < CONFIG.RATE_LIMIT_MS) {
+      console.warn('Rate limit exceeded');
+      return false;
     }
-    if (m.tx.length === 0 && m.carry === 0) {
-      const e = document.createElement('div'); e.className='empty-month';
-      e.textContent = 'No transactions this month';
-      l.appendChild(e);
-    } else {
-      m.tx.forEach((t,i) => {
-        const r = document.createElement('div'); r.className='row';
-        const dateStr = new Date(t.ts).toLocaleString('bg-BG', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', hour12: false
-        }).replace(',', '');
-        const bgnAmt = (t.amt * EUR_TO_BGN).toFixed(2);
-        r.innerHTML = `
-          <div>
-            <div class="desc">${t.desc}</div>
-            <div class="meta">${dateStr}</div>
-          </div>
-          <div>
-            <div class="amt ${t.type}">${t.type==='income'?'+':'-'}${Number(t.amt).toFixed(2)} €</div>
-            <div class="bgn">≈ ${bgnAmt} BGN</div>
-          </div>
-          <div class="actions">
-            <button class="btn-small btn-edit" onclick="startEdit('${key}',${i})"><i class="fa-solid fa-pencil"></i></button>
-            <button class="btn-small btn-delete" onclick="removeTx('${key}',${i})"><i class="fa-solid fa-trash"></i></button>
-          </div>`;
-        l.appendChild(r);
-      });
-    }
-    mo.appendChild(h); mo.appendChild(totalDiv); mo.appendChild(l); c.appendChild(mo);
-  });
-  document.getElementById('add').textContent = editing ? 'Save Edit' : 'Add';
-}
-function startEdit(monthKey, idx) {
-  const t = months[monthKey].tx[idx];
-  document.getElementById('desc').value = t.desc;
-  document.getElementById('amount').value = t.amt;
-  document.getElementById('type').value = t.type;
-  const typeSelect = document.getElementById('type');
-  typeSelect.classList.remove('income-select', 'expense-select');
-  typeSelect.classList.add(`${t.type}-select`);
-  editing = {monthKey, idx};
-  render();
-}
-function addTx() {
-  const desc = document.getElementById('desc').value.trim();
-  const amt = Number(document.getElementById('amount').value);
-  const type = document.getElementById('type').value;
-  if (!desc || isNaN(amt) || amt <= 0) return;
-  const key = getMonthKey();
-  const m = getOrCreateMonth(key);
-  if (editing) {
-    const old = months[editing.monthKey].tx[editing.idx];
-    if (old.type === 'income') months[editing.monthKey].income -= old.amt;
-    else months[editing.monthKey].expense -= old.amt;
-    months[editing.monthKey].tx[editing.idx] = {desc, amt, type, ts: Date.now()};
-    if (type === 'income') months[editing.monthKey].income += amt;
-    else months[editing.monthKey].expense += amt;
-    editing = null;
-  } else {
-    m.tx.unshift({desc, amt, type, ts: Date.now()});
-    if (type === 'income') m.income += amt;
-    else m.expense += amt;
+    STATE.lastActionTime = now;
+    return true;
+  },
+  
+  validateInput(desc, amt, type) {
+    if (!desc || typeof desc !== 'string') return false;
+    if (desc.trim().length === 0 || desc.length > CONFIG.MAX_DESC_LENGTH) return false;
+    const amount = Number(amt);
+    if (isNaN(amount) || amount < CONFIG.MIN_AMOUNT || amount > CONFIG.MAX_AMOUNT) return false;
+    if (!['income', 'expense'].includes(type)) return false;
+    return true;
+  },
+  
+  sanitizeInput(str) {
+    if (typeof str !== 'string') return '';
+    return str.slice(0, CONFIG.MAX_DESC_LENGTH)
+      .replace(/[<>]/g, '')
+      .trim();
+  },
+  
+  checkDataIntegrity() {
+    const txCount = Object.values(STATE.months).reduce((sum, m) => sum + (m.tx?.length || 0), 0);
+    return txCount <= CONFIG.MAX_TRANSACTIONS_PER_MONTH * Object.keys(STATE.months).length;
   }
-  save();
-  document.getElementById('desc').value = '';
-  document.getElementById('amount').value = '';
-  document.getElementById('type').value = 'income';
-  const typeSelect = document.getElementById('type');
-  typeSelect.classList.remove('income-select', 'expense-select');
-  typeSelect.classList.add('income-select');
-  render();
-}
-function removeTx(k, i){
-  if(!confirm('Delete?')) return;
-  const m = months[k];
-  const t = m.tx[i];
-  if(t.type==='income') m.income -= t.amt; else m.expense -= t.amt;
-  m.tx.splice(i,1);
-  save();
-  render();
-}
-document.getElementById('add').onclick = addTx;
-document.getElementById('amount').onkeydown = e => { if(e.key==='Enter') addTx(); };
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && editing) {
-    editing = null;
+};
+
+// Utility: Date & Formatting
+const Formatter = {
+  getMonthKey(d = new Date()) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  },
+  
+  formatDate(timestamp) {
+    try {
+      return new Date(timestamp).toLocaleString('bg-BG', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).replace(',', '');
+    } catch {
+      return 'Invalid Date';
+    }
+  },
+  
+  formatCurrency(amount, currency = 'EUR') {
+    return `${amount >= 0 ? '+' : ''}${Number(amount).toFixed(2)} ${currency}`;
+  },
+  
+  convertToBGN(eur) {
+    return (eur * CONFIG.EUR_TO_BGN).toFixed(2);
+  }
+};
+
+// Data Management
+const DataManager = {
+  save() {
+    if (!Security.checkDataIntegrity()) {
+      console.error('Data integrity check failed');
+      return false;
+    }
+    try {
+      localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(STATE.months));
+      this.showIndicator('Saved', 'success');
+      return true;
+    } catch (e) {
+      console.error('Storage error:', e);
+      this.showIndicator('Save failed', 'error');
+      return false;
+    }
+  },
+  
+  getOrCreateMonth(key) {
+    if (!STATE.months[key]) {
+      let carry = 0;
+      const [y, m] = key.split('-').map(Number);
+      let py = y, pm = m - 1;
+      if (pm === 0) { pm = 12; py--; }
+      const pk = `${py}-${String(pm).padStart(2, '0')}`;
+      if (STATE.months[pk]) {
+        carry = STATE.months[pk].carry + STATE.months[pk].income - STATE.months[pk].expense;
+      }
+      STATE.months[key] = { income: 0, expense: 0, carry, tx: [] };
+    }
+    return STATE.months[key];
+  },
+  
+  addTransaction(desc, amt, type) {
+    if (!Security.validateInput(desc, amt, type) || !Security.checkRateLimit()) return false;
+    
+    desc = Security.sanitizeInput(desc);
+    const key = Formatter.getMonthKey();
+    const m = this.getOrCreateMonth(key);
+    
+    m.tx.unshift({ desc, amt: Number(amt), type, ts: Date.now() });
+    if (type === 'income') m.income += Number(amt);
+    else m.expense += Number(amt);
+    
+    return this.save();
+  },
+  
+  updateTransaction(monthKey, idx, desc, amt, type) {
+    if (!Security.validateInput(desc, amt, type) || !Security.checkRateLimit()) return false;
+    
+    desc = Security.sanitizeInput(desc);
+    const m = STATE.months[monthKey];
+    if (!m || !m.tx[idx]) return false;
+    
+    const old = m.tx[idx];
+    if (old.type === 'income') m.income -= old.amt;
+    else m.expense -= old.amt;
+    
+    m.tx[idx] = { desc, amt: Number(amt), type, ts: Date.now() };
+    if (type === 'income') m.income += Number(amt);
+    else m.expense += Number(amt);
+    
+    return this.save();
+  },
+  
+  deleteTransaction(k, i) {
+    if (!Security.checkRateLimit()) return false;
+    const m = STATE.months[k];
+    if (!m || !m.tx[i]) return false;
+    
+    const t = m.tx[i];
+    if (t.type === 'income') m.income -= t.amt;
+    else m.expense -= t.amt;
+    
+    m.tx.splice(i, 1);
+    return this.save();
+  },
+  
+  showIndicator(msg, type = 'info') {
+    const ind = document.getElementById('indicator');
+    if (ind) {
+      ind.textContent = msg;
+      ind.className = `indicator show ${type}`;
+      setTimeout(() => ind.classList.remove('show'), 2000);
+    }
+  }
+};
+
+// UI Rendering
+const UI = {
+  render() {
+    clearTimeout(STATE.renderTimeout);
+    STATE.renderTimeout = setTimeout(() => this._doRender(), 100);
+  },
+  
+  _doRender() {
+    const c = document.getElementById('months');
+    c.innerHTML = '';
+    const keys = Object.keys(STATE.months).sort().reverse();
+    const ck = Formatter.getMonthKey();
+    
+    if (!keys.includes(ck)) {
+      DataManager.getOrCreateMonth(ck);
+      keys.unshift(ck);
+    }
+    
+    keys.forEach(key => {
+      const m = STATE.months[key];
+      const final = m.carry + m.income - m.expense;
+      const isCur = key === ck;
+      const mo = document.createElement('div');
+      mo.className = 'month';
+      
+      // Header
+      const h = document.createElement('div');
+      h.className = 'month-header';
+      h.innerHTML = `<div>${key}${isCur ? ' <small>(current)</small>' : ''}</div>`;
+      
+      // Total
+      const totalDiv = document.createElement('div');
+      totalDiv.className = 'month-total';
+      totalDiv.innerHTML = `<span class="month-balance ${final >= 0 ? 'positive' : 'negative'}">${final.toFixed(2)} €</span>`;
+      
+      // Transactions
+      const l = document.createElement('div');
+      l.className = 'transactions-list';
+      
+      if (m.carry !== 0) {
+        const cr = document.createElement('div');
+        cr.className = 'row';
+        cr.innerHTML = `<div class="desc" style="color:var(--text2)">Carry from prev</div>
+          <div><div class="amt">${m.carry >= 0 ? '+' : ''}${m.carry.toFixed(2)} €</div></div><div></div>`;
+        l.appendChild(cr);
+      }
+      
+      if (m.tx.length === 0 && m.carry === 0) {
+        const e = document.createElement('div');
+        e.className = 'empty-month';
+        e.textContent = 'No transactions this month';
+        l.appendChild(e);
+      } else {
+        m.tx.forEach((t, i) => {
+          const r = document.createElement('div');
+          r.className = 'row';
+          const dateStr = Formatter.formatDate(t.ts);
+          const bgnAmt = Formatter.convertToBGN(t.amt);
+          r.innerHTML = `
+            <div>
+              <div class="desc">${this.escapeHtml(t.desc)}</div>
+              <div class="meta">${dateStr}</div>
+            </div>
+            <div>
+              <div class="amt ${t.type}">${t.type === 'income' ? '+' : '-'}${Number(t.amt).toFixed(2)} €</div>
+              <div class="bgn">≈ ${bgnAmt} BGN</div>
+            </div>
+            <div class="actions">
+              <button class="btn-small btn-edit" onclick="UI.startEdit('${key}',${i})" title="Edit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button class="btn-small btn-delete" onclick="UI.removeTx('${key}',${i})" title="Delete">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>`;
+          l.appendChild(r);
+        });
+      }
+      
+      mo.appendChild(h);
+      mo.appendChild(totalDiv);
+      mo.appendChild(l);
+      c.appendChild(mo);
+    });
+    
+    document.getElementById('add').textContent = STATE.editing ? 'Save Edit' : 'Add';
+  },
+  
+  escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  },
+  
+  startEdit(monthKey, idx) {
+    if (!Security.checkRateLimit()) return;
+    const t = STATE.months[monthKey]?.tx[idx];
+    if (!t) return;
+    
+    document.getElementById('desc').value = t.desc;
+    document.getElementById('amount').value = t.amt;
+    document.getElementById('type').value = t.type;
+    this.updateTypeSelect(t.type);
+    STATE.editing = { monthKey, idx };
+    this.render();
+  },
+  
+  removeTx(k, i) {
+    if (!confirm('Delete this transaction?')) return;
+    if (DataManager.deleteTransaction(k, i)) {
+      this.clearForm();
+      this.render();
+    }
+  },
+  
+  clearForm() {
     document.getElementById('desc').value = '';
     document.getElementById('amount').value = '';
     document.getElementById('type').value = 'income';
-    const typeSelect = document.getElementById('type');
-    typeSelect.classList.remove('income-select', 'expense-select');
-    typeSelect.classList.add('income-select');
-    render();
+    this.updateTypeSelect('income');
+    STATE.editing = null;
+  },
+  
+  updateTypeSelect(type) {
+    const sel = document.getElementById('type');
+    sel.classList.remove('income-select', 'expense-select');
+    sel.classList.add(`${type}-select`);
+  },
+  
+  addTransaction() {
+    const desc = document.getElementById('desc').value.trim();
+    const amt = document.getElementById('amount').value;
+    const type = document.getElementById('type').value;
+    
+    if (!desc || !amt) return;
+    
+    const success = STATE.editing
+      ? DataManager.updateTransaction(STATE.editing.monthKey, STATE.editing.idx, desc, amt, type)
+      : DataManager.addTransaction(desc, amt, type);
+    
+    if (success) {
+      this.clearForm();
+      this.render();
+    }
+  }
+};
+
+// Theme Management
+const Theme = {
+  init() {
+    const currentTheme = localStorage.getItem(CONFIG.THEME_KEY) || 'dark';
+    document.body.setAttribute('data-theme', currentTheme);
+    this.updateToggleIcon(currentTheme);
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => this.toggle());
+    document.getElementById('type').addEventListener('change', (e) => UI.updateTypeSelect(e.target.value));
+  },
+  
+  toggle() {
+    const current = document.body.getAttribute('data-theme');
+    const newTheme = current === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem(CONFIG.THEME_KEY, newTheme);
+    this.updateToggleIcon(newTheme);
+  },
+  
+  updateToggleIcon(theme) {
+    const btn = document.getElementById('theme-toggle');
+    if (theme === 'dark') {
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      `;
+    } else {
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      `;
+    }
+  }
+};
+
+// Event Listeners
+document.getElementById('add').addEventListener('click', () => UI.addTransaction());
+document.getElementById('amount').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') UI.addTransaction();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && STATE.editing) {
+    UI.clearForm();
+    UI.render();
   }
 });
-const themeToggle = document.getElementById('theme-toggle');
-const body = document.body;
-const currentTheme = localStorage.getItem(THEME_KEY) || 'dark';
-body.setAttribute('data-theme', currentTheme);
-themeToggle.innerHTML = currentTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-themeToggle.onclick = () => {
-  const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', newTheme);
-  localStorage.setItem(THEME_KEY, newTheme);
-  themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-};
-const typeSelect = document.getElementById('type');
-typeSelect.classList.add('income-select');
-typeSelect.addEventListener('change', () => {
-  typeSelect.classList.remove('income-select', 'expense-select');
-  typeSelect.classList.add(`${typeSelect.value}-select`);
-});
-render();
+
+// Initialize
+Theme.init();
+UI.render();
+
+// Service Worker for offline support (optional)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('data:application/javascript,self.addEventListener("install",e=>self.skipWaiting());self.addEventListener("activate",e=>e.waitUntil(self.clients.matchAll().then(c=>c.forEach(client=>client.navigate(client.url)))));', { type: 'module' }).catch(() => {});
+}
+
+// Session timeout warning
+setInterval(() => {
+  if (Date.now() - STATE.lastActionTime > CONFIG.SESSION_TIMEOUT_MS && Object.keys(STATE.months).length > 0) {
+    DataManager.showIndicator('Session may have expired - refreshing...', 'info');
+    UI.render();
+  }
+}, 60000);
 </script>
 </body>
 </html>
