@@ -768,7 +768,7 @@ const FileManager = {
             const dateStr = Formatter.formatDate(t.ts);
             const bgnAmt = Formatter.convertToBGN(t.amt);
             const sign = t.type === 'income' ? '+' : '-';
-            txtContent += `  [${dateStr}] ${sign}${t.amt.toFixed(2)} € (≈ ${bgnAmt} BGN) - ${t.type.toUpperCase()} - ${t.desc}\n`;
+            txtContent += `  [${dateStr}|${t.ts}] ${sign}${t.amt.toFixed(2)} € (≈ ${bgnAmt} BGN) - ${t.type.toUpperCase()} - ${t.desc}\n`;
           });
         }
         txtContent += '\n' + '='.repeat(50) + '\n\n';
@@ -812,14 +812,19 @@ const FileManager = {
           return;
         }
         
-        if (confirm('This will merge the imported data with existing data. Continue?')) {
-          // Merge data
+        const choice = confirm('Replace all data with imported data?\n\nOK = Replace\nCancel = Merge');
+        
+        if (choice) {
+          // REPLACE - completely replace all data
+          STATE.months = importedData;
+          console.log('Replaced all data with imported data');
+        } else {
+          // MERGE - merge imported with existing
           Object.keys(importedData).forEach(monthKey => {
             const imported = importedData[monthKey];
             const existing = STATE.months[monthKey];
             
             if (!existing) {
-              // New month - just copy it
               STATE.months[monthKey] = imported;
               console.log('Added new month:', monthKey, imported);
             } else {
@@ -850,11 +855,11 @@ const FileManager = {
               console.log('Merged month:', monthKey, 'added', addedCount, 'transactions');
             }
           });
-          
-          DataManager.save();
-          UI.render();
-          DataManager.showIndicator('Data imported successfully', 'success');
         }
+        
+        DataManager.save();
+        UI.render();
+        DataManager.showIndicator('Data imported successfully', 'success');
       };
       reader.readAsText(file);
     } catch (e) {
@@ -895,24 +900,19 @@ const FileManager = {
           const match = line.match(/[\+\-]?(\d+\.?\d*)/);
           if (match) monthData.expense = parseFloat(match[1]);
         } else if (line.startsWith('[') && line.includes(']') && currentMonth) {
-          // Parse transaction line
-          const txMatch = line.match(/\[(.*?)\]\s*([\+\-])(\d+\.?\d*)\s*€.*?-\s*(INCOME|EXPENSE)\s*-\s*(.*)/i);
+          // Parse transaction line with embedded timestamp
+          const txMatch = line.match(/\[(.*?)\|(\d+)\]\s*([\+\-])(\d+\.?\d*)\s*€.*?-\s*(INCOME|EXPENSE)\s*-\s*(.*)/i);
           if (txMatch) {
-            const [, dateStr, sign, amount, type, desc] = txMatch;
+            const [, dateStr, timestamp, sign, amount, type, desc] = txMatch;
             try {
-              // Parse date format: DD.MM.YYYY HH:MM
-              const dateMatch = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
-              if (dateMatch) {
-                const [, day, month, year, hour, minute] = dateMatch;
-                const date = new Date(year, month - 1, day, hour, minute);
-                if (!isNaN(date.getTime())) {
-                  currentTxs.push({
-                    desc: desc.trim(),
-                    amt: parseFloat(amount),
-                    type: type.toLowerCase(),
-                    ts: date.getTime()
-                  });
-                }
+              const ts = parseInt(timestamp);
+              if (!isNaN(ts)) {
+                currentTxs.push({
+                  desc: desc.trim(),
+                  amt: parseFloat(amount),
+                  type: type.toLowerCase(),
+                  ts: ts
+                });
               }
             } catch (e) {
               console.warn('Could not parse transaction:', line);
