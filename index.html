@@ -302,7 +302,61 @@
     .menu-item:hover { background: var(--primary); color: white; }
     .menu-item:first-child { border-radius: 7px 7px 0 0; }
     .menu-item:last-child { border-radius: 0 0 7px 7px; }
+    .summary-panel {
+      background: var(--surface);
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 1.4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .summary-item {
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(96, 165, 250, 0.05);
+    }
+    .summary-label {
+      font-size: 0.8rem;
+      color: var(--text2);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .summary-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .summary-item.income-summary { background: rgba(52, 211, 153, 0.1); }
+    .summary-item.expense-summary { background: rgba(248, 113, 113, 0.1); }
+    .summary-item.balance-summary { background: rgba(96, 165, 250, 0.1); }
+    .summary-item.income-summary .summary-value { color: var(--income); }
+    .summary-item.expense-summary .summary-value { color: var(--expense); }
+    .summary-item.balance-summary .summary-value { color: var(--primary); }
     @media (max-width: 560px) {
+      .summary-panel { 
+        grid-template-columns: 1fr; 
+        gap: 6px; 
+        padding: 8px;
+        margin-bottom: 1rem;
+      }
+      .summary-item {
+        padding: 6px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .summary-label {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+        text-align: left;
+      }
+      .summary-value {
+        font-size: 1rem;
+      }
       body { padding: 10px; }
       .form { padding: 12px; flex-direction: column; gap: 8px; }
       input, select { width: 100%; max-height: 44px; font-size: 16px; padding: 12px; }
@@ -361,6 +415,7 @@
     </div>
     <input id="file-input" type="file" accept=".txt" style="display: none;">
   </div>
+  <div id="summary" role="region" aria-label="Current month summary"></div>
   <div id="months" role="region" aria-label="Transactions by month"></div>
   <div id="indicator" class="indicator" role="status" aria-live="polite"></div>
 </div>
@@ -544,6 +599,47 @@ const UI = {
   },
   
   _doRender() {
+    this.renderSummary();
+    this.renderMonths();
+    document.getElementById('add').textContent = STATE.editing ? 'Save Edit' : 'Add';
+  },
+  
+  renderSummary() {
+    const ck = Formatter.getMonthKey();
+    const currentMonth = STATE.months[ck];
+    
+    if (!currentMonth) {
+      document.getElementById('summary').innerHTML = '';
+      return;
+    }
+    
+    const income = currentMonth.income;
+    const expense = currentMonth.expense;
+    const balance = currentMonth.carry + income - expense;
+    const bgnBalance = Formatter.convertToBGN(balance);
+    
+    const summaryHTML = `
+      <div class="summary-panel">
+        <div class="summary-item income-summary">
+          <div class="summary-label">Income</div>
+          <div class="summary-value">+${income.toFixed(2)} €</div>
+        </div>
+        <div class="summary-item expense-summary">
+          <div class="summary-label">Spent</div>
+          <div class="summary-value">-${expense.toFixed(2)} €</div>
+        </div>
+        <div class="summary-item balance-summary">
+          <div class="summary-label">Balance</div>
+          <div class="summary-value">${balance.toFixed(2)} €</div>
+          <div style="font-size: 0.75rem; color: var(--text2); margin-top: 2px;">≈ ${bgnBalance} BGN</div>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('summary').innerHTML = summaryHTML;
+  },
+  
+  renderMonths() {
     const c = document.getElementById('months');
     c.innerHTML = '';
     const keys = Object.keys(STATE.months).sort().reverse();
