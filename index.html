@@ -871,14 +871,19 @@ const FileManager = {
           if (txMatch) {
             const [, dateStr, sign, amount, type, desc] = txMatch;
             try {
-              const date = new Date(dateStr);
-              if (!isNaN(date.getTime())) {
-                currentTxs.push({
-                  desc: desc.trim(),
-                  amt: parseFloat(amount),
-                  type: type.toLowerCase(),
-                  ts: date.getTime()
-                });
+              // Parse date format: DD.MM.YYYY HH:MM
+              const dateMatch = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
+              if (dateMatch) {
+                const [, day, month, year, hour, minute] = dateMatch;
+                const date = new Date(year, month - 1, day, hour, minute);
+                if (!isNaN(date.getTime())) {
+                  currentTxs.push({
+                    desc: desc.trim(),
+                    amt: parseFloat(amount),
+                    type: type.toLowerCase(),
+                    ts: date.getTime()
+                  });
+                }
               }
             } catch (e) {
               console.warn('Could not parse transaction:', line);
