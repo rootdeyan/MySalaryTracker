@@ -805,6 +805,8 @@ const FileManager = {
         const content = e.target.result;
         const importedData = this.parseTxtContent(content);
         
+        console.log('Imported data:', importedData);
+        
         if (!importedData || Object.keys(importedData).length === 0) {
           DataManager.showIndicator('Invalid file format', 'error');
           return;
@@ -817,23 +819,35 @@ const FileManager = {
             const existing = STATE.months[monthKey];
             
             if (!existing) {
+              // New month - just copy it
               STATE.months[monthKey] = imported;
+              console.log('Added new month:', monthKey, imported);
             } else {
-              // Merge transactions, avoiding duplicates based on timestamp and amount
+              // Existing month - merge transactions
               const existingTxs = existing.tx || [];
               const importedTxs = imported.tx || [];
               
+              let addedCount = 0;
               importedTxs.forEach(iTx => {
                 const isDuplicate = existingTxs.some(eTx => 
                   eTx.ts === iTx.ts && eTx.amt === iTx.amt && eTx.type === iTx.type && eTx.desc === iTx.desc
                 );
                 if (!isDuplicate) {
                   existingTxs.unshift(iTx);
-                  if (iTx.type === 'income') existing.income += iTx.amt;
-                  else existing.expense += iTx.amt;
+                  addedCount++;
                 }
               });
+              
+              // Recalculate totals from all transactions
               existing.tx = existingTxs;
+              existing.income = 0;
+              existing.expense = 0;
+              existingTxs.forEach(tx => {
+                if (tx.type === 'income') existing.income += tx.amt;
+                else existing.expense += tx.amt;
+              });
+              
+              console.log('Merged month:', monthKey, 'added', addedCount, 'transactions');
             }
           });
           
@@ -862,11 +876,9 @@ const FileManager = {
         
         if (line.startsWith('MONTH:')) {
           // Save previous month if exists
-          if (currentMonth && currentTxs.length > 0) {
+          if (currentMonth) {
             data[currentMonth] = { ...monthData, tx: currentTxs };
-          } else if (currentMonth && monthData.income > 0) {
-            // Save even without transactions if there's income/expense
-            data[currentMonth] = { ...monthData, tx: currentTxs };
+            console.log('Parsing month:', currentMonth, monthData, currentTxs.length, 'transactions');
           }
           
           // Start new month
@@ -911,11 +923,11 @@ const FileManager = {
       
       // Save last month
       if (currentMonth) {
-        if (currentTxs.length > 0 || monthData.income > 0 || monthData.carry !== 0) {
-          data[currentMonth] = { ...monthData, tx: currentTxs };
-        }
+        data[currentMonth] = { ...monthData, tx: currentTxs };
+        console.log('Parsing month (last):', currentMonth, monthData, currentTxs.length, 'transactions');
       }
       
+      console.log('Total months parsed:', Object.keys(data).length);
       return data;
     } catch (e) {
       console.error('Parse error:', e);
