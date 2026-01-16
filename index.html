@@ -175,8 +175,72 @@
     }
     button:hover { opacity: 0.9; transform: translateY(-1px); }
     button:active { transform: translateY(0); }
-    .income-select { background: var(--income-bg); border-color: var(--income); }
-    .expense-select { background: var(--expense-bg); border-color: var(--expense); }
+    
+    /* Income/Expense Type Selector */
+    #type {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding: 8px 32px 8px 12px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2360a5fa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      cursor: pointer;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 2px solid transparent;
+      background-origin: padding-box;
+    }
+    
+    #type:hover {
+      box-shadow: 0 4px 16px rgba(96, 165, 250, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    #type:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1), inset 0 0 0 1px var(--primary);
+    }
+    
+    .income-select {
+      background-color: var(--income-bg);
+      border-color: var(--income);
+      color: var(--income);
+    }
+    
+    .income-select:hover {
+      background-color: rgba(52, 211, 153, 0.15);
+      box-shadow: 0 4px 16px rgba(52, 211, 153, 0.2);
+    }
+    
+    .expense-select {
+      background-color: var(--expense-bg);
+      border-color: var(--expense);
+      color: var(--expense);
+    }
+    
+    .expense-select:hover {
+      background-color: rgba(248, 113, 113, 0.15);
+      box-shadow: 0 4px 16px rgba(248, 113, 113, 0.2);
+    }
+    
+    #type option {
+      background: var(--surface);
+      color: var(--text);
+      padding: 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    
+    #type option:checked {
+      background: linear-gradient(var(--primary), var(--primary));
+      background-color: var(--primary) !important;
+      color: white;
+    }
+    
     .desc-field { flex: 1 1 100%; }
     .amount-field { flex: 1 1 100px; }
     .type-field { flex: 1 1 90px; }
@@ -194,6 +258,105 @@
       animation: fadeIn 0.3s ease;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .month-tab-selector {
+      padding: 12px 14px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid var(--primary);
+      flex-wrap: wrap;
+    }
+    .month-tab {
+      padding: 8px 14px;
+      background: rgba(96, 165, 250, 0.1);
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+    }
+    .month-tab:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+    .month-tab.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+    }
+    .month-dropdown-wrapper {
+      position: relative;
+    }
+    .month-dropdown-btn {
+      padding: 8px 12px;
+      background: var(--border);
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .month-dropdown-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    .month-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 1000;
+      min-width: 200px;
+      margin-top: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .month-dropdown.show {
+      display: block;
+    }
+    .month-dropdown-group {
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+    }
+    .month-dropdown-group:last-child {
+      border-bottom: none;
+    }
+    .month-dropdown-group-title {
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .month-dropdown-item {
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .month-dropdown-item:hover {
+      background: rgba(96, 165, 250, 0.1);
+      padding-left: 18px;
+    }
+    .month-dropdown-item.active {
+      background: rgba(96, 165, 250, 0.2);
+      color: var(--primary);
+      font-weight: 600;
+    }
     .month-header {
       padding: 10px 14px;
       background: #1e2238;
@@ -446,6 +609,7 @@ const CONFIG = {
 const STATE = {
   months: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || '{}'),
   editing: null,
+  selectedMonth: null,
   lastActionTime: Date.now(),
   sessionId: Math.random().toString(36).substr(2, 9),
   renderTimeout: null
@@ -613,7 +777,7 @@ const UI = {
   },
   
   renderSummary() {
-    const ck = Formatter.getMonthKey();
+    const ck = STATE.selectedMonth || Formatter.getMonthKey();
     const currentMonth = STATE.months[ck];
     
     if (!currentMonth) {
@@ -625,6 +789,9 @@ const UI = {
     const expense = currentMonth.expense;
     const bgnIncome = Formatter.convertToBGN(income);
     const bgnExpense = Formatter.convertToBGN(expense);
+    
+    const balance = currentMonth.carry + income - expense;
+    const bgnBalance = Formatter.convertToBGN(balance);
     
     const summaryHTML = `
       <div class="summary-panel">
@@ -640,6 +807,13 @@ const UI = {
           <div class="summary-value">
             <div style="font-size: 0.75rem; color: var(--text2);">≈ ${bgnExpense} BGN</div>
             <div>-${expense.toFixed(2)} €</div>
+          </div>
+        </div>
+        <div class="summary-item balance-summary" style="grid-column: 1 / -1;">
+          <div class="summary-label">Balance</div>
+          <div class="summary-value">
+            <div style="font-size: 0.75rem; color: var(--text2);">≈ ${bgnBalance} BGN</div>
+            <div>${balance >= 0 ? '+' : ''}${balance.toFixed(2)} €</div>
           </div>
         </div>
       </div>
@@ -659,46 +833,109 @@ const UI = {
       keys.unshift(ck);
     }
     
+    // Create month selector
+    const selector = document.createElement('div');
+    selector.className = 'month-tab-selector';
+    
+    // Parse current month
+    const [curYear, curMonth] = ck.split('-');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonthName = monthNames[parseInt(curMonth) - 1];
+    
+    // Current month tab
+    const currentTab = document.createElement('div');
+    currentTab.className = 'month-tab active';
+    currentTab.textContent = `${currentMonthName} ${curYear}`;
+    currentTab.onclick = () => UI.switchMonth(ck);
+    selector.appendChild(currentTab);
+    
+    // Group months by year
+    const monthsByYear = {};
     keys.forEach(key => {
-      const m = STATE.months[key];
-      const final = m.carry + m.income - m.expense;
-      const isCur = key === ck;
-      const mo = document.createElement('div');
-      mo.className = 'month';
+      if (key !== ck) {
+        const [year] = key.split('-');
+        if (!monthsByYear[year]) monthsByYear[year] = [];
+        monthsByYear[year].push(key);
+      }
+    });
+    
+    // Dropdown for past months
+    if (Object.keys(monthsByYear).length > 0) {
+      const dropdownWrapper = document.createElement('div');
+      dropdownWrapper.className = 'month-dropdown-wrapper';
       
-      // Header
-      const h = document.createElement('div');
-      h.className = 'month-header';
-      h.innerHTML = `<div>${key}${isCur ? ' <small>(current)</small>' : ''}</div>`;
+      const dropdownBtn = document.createElement('button');
+      dropdownBtn.className = 'month-dropdown-btn';
+      dropdownBtn.textContent = '📅 Previous Months';
       
-      // Total
-      const totalDiv = document.createElement('div');
-      totalDiv.className = 'month-total';
-      const bgnTotal = Formatter.convertToBGN(final);
-      totalDiv.innerHTML = `
-        <div class="total-eur month-balance ${final >= 0 ? 'positive' : 'negative'}">${final.toFixed(2)} €</div>
-        <div class="total-bgn">≈ ${bgnTotal} BGN</div>
-      `;
+      const dropdown = document.createElement('div');
+      dropdown.className = 'month-dropdown';
       
-      // Transactions
+      // Sort years descending
+      Object.keys(monthsByYear).sort().reverse().forEach(year => {
+        const group = document.createElement('div');
+        group.className = 'month-dropdown-group';
+        
+        const title = document.createElement('div');
+        title.className = 'month-dropdown-group-title';
+        title.textContent = year;
+        group.appendChild(title);
+        
+        // Sort months descending
+        monthsByYear[year].sort().reverse().forEach(monthKey => {
+          const item = document.createElement('div');
+          item.className = 'month-dropdown-item';
+          const [y, m] = monthKey.split('-');
+          const mName = monthNames[parseInt(m) - 1];
+          item.textContent = mName;
+          item.onclick = () => {
+            UI.switchMonth(monthKey);
+            dropdown.classList.remove('show');
+          };
+          group.appendChild(item);
+        });
+        
+        dropdown.appendChild(group);
+      });
+      
+      dropdownBtn.onclick = (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+      };
+      
+      document.addEventListener('click', () => dropdown.classList.remove('show'));
+      
+      dropdownWrapper.appendChild(dropdownBtn);
+      dropdownWrapper.appendChild(dropdown);
+      selector.appendChild(dropdownWrapper);
+    }
+    
+    c.appendChild(selector);
+    
+    // Render current month data
+    const ckData = STATE.months[ck];
+    if (ckData) {
+      const monthContainer = document.createElement('div');
+      monthContainer.className = 'month';
+      
       const l = document.createElement('div');
       l.className = 'transactions-list';
       
-      if (m.carry !== 0) {
+      if (ckData.carry !== 0) {
         const cr = document.createElement('div');
         cr.className = 'row';
         cr.innerHTML = `<div class="desc" style="color:var(--text2)">Carry from prev</div>
-          <div><div class="amt">${m.carry >= 0 ? '+' : ''}${m.carry.toFixed(2)} €</div></div><div></div>`;
+          <div><div class="amt">${ckData.carry >= 0 ? '+' : ''}${ckData.carry.toFixed(2)} €</div></div><div></div>`;
         l.appendChild(cr);
       }
       
-      if (m.tx.length === 0 && m.carry === 0) {
+      if (ckData.tx.length === 0 && ckData.carry === 0) {
         const e = document.createElement('div');
         e.className = 'empty-month';
         e.textContent = 'No transactions this month';
         l.appendChild(e);
       } else {
-        m.tx.forEach((t, i) => {
+        ckData.tx.forEach((t, i) => {
           const r = document.createElement('div');
           r.className = 'row';
           const dateStr = Formatter.formatDate(t.ts);
@@ -713,13 +950,13 @@ const UI = {
               <div class="bgn">≈ ${bgnAmt} BGN</div>
             </div>
             <div class="actions">
-              <button class="btn-small btn-edit" onclick="UI.startEdit('${key}',${i})" title="Edit">
+              <button class="btn-small btn-edit" onclick="UI.startEdit('${ck}',${i})" title="Edit">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
               </button>
-              <button class="btn-small btn-delete" onclick="UI.removeTx('${key}',${i})" title="Delete">
+              <button class="btn-small btn-delete" onclick="UI.removeTx('${ck}',${i})" title="Delete">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -732,13 +969,16 @@ const UI = {
         });
       }
       
-      mo.appendChild(h);
-      mo.appendChild(totalDiv);
-      mo.appendChild(l);
-      c.appendChild(mo);
-    });
+      monthContainer.appendChild(l);
+      c.appendChild(monthContainer);
+    }
     
     document.getElementById('add').textContent = STATE.editing ? 'Save Edit' : 'Add';
+  },
+  
+  switchMonth(monthKey) {
+    STATE.selectedMonth = monthKey;
+    UI.render();
   },
   
   escapeHtml(text) {
