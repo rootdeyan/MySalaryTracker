@@ -19,14 +19,14 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Salary Tracker - Free Personal Finance Manager">
   <meta name="twitter:description" content="Track your salary and expenses with monthly carry-over balances. Secure, offline-first, no signup.">
-  <title>Salary Tracker - Free Personal Expense & Income Manager</title>
+  <title>rootdeyan | myBalance &euro;</title>
   <link rel="canonical" href="https://rootdeyan.github.io/MySalaryTracker/">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2360a5fa'>€</text></svg>">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Salary Tracker",
+    "name": "rootdeyan | myBalance €",
     "description": "Free personal salary and expense tracker with monthly balance carry-over",
     "url": "https://rootdeyan.github.io/MySalaryTracker/",
     "applicationCategory": "FinanceApplication",
@@ -266,6 +266,8 @@
       gap: 12px;
       border-bottom: 2px solid var(--primary);
       flex-wrap: wrap;
+      margin-top: 16px;
+      border-radius: 8px 8px 0 0;
     }
     .month-tab {
       padding: 8px 14px;
@@ -567,7 +569,7 @@
 <body data-theme="dark">
 <div class="container">
   <header>
-    <h1>💰 Salary Tracker</h1>
+    <h2>rootdeyan | myBalance &euro;</h2>
     <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -1328,6 +1330,7 @@ document.addEventListener('keydown', (e) => {
 
 // Initialize
 Theme.init();
+UI.updateTypeSelect('income'); // Apply default Income styling
 UI.render();
 
 // Service Worker for offline support (optional)
