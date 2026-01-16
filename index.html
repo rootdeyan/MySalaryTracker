@@ -855,16 +855,33 @@ const FileManager = {
       const data = {};
       let currentMonth = null;
       let currentTxs = [];
+      let monthData = { income: 0, expense: 0, carry: 0 };
       
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         
         if (line.startsWith('MONTH:')) {
-          if (currentMonth) {
-            data[currentMonth] = currentTxs;
+          // Save previous month if exists
+          if (currentMonth && currentTxs.length > 0) {
+            data[currentMonth] = { ...monthData, tx: currentTxs };
+          } else if (currentMonth && monthData.income > 0) {
+            // Save even without transactions if there's income/expense
+            data[currentMonth] = { ...monthData, tx: currentTxs };
           }
+          
+          // Start new month
           currentMonth = line.replace('MONTH:', '').trim();
           currentTxs = [];
+          monthData = { income: 0, expense: 0, carry: 0 };
+        } else if (line.startsWith('Carry from previous:')) {
+          const match = line.match(/[\+\-]?(\d+\.?\d*)/);
+          if (match) monthData.carry = parseFloat(match[1]);
+        } else if (line.startsWith('Total Income:')) {
+          const match = line.match(/[\+\-]?(\d+\.?\d*)/);
+          if (match) monthData.income = parseFloat(match[1]);
+        } else if (line.startsWith('Total Expense:')) {
+          const match = line.match(/[\+\-]?(\d+\.?\d*)/);
+          if (match) monthData.expense = parseFloat(match[1]);
         } else if (line.startsWith('[') && line.includes(']') && currentMonth) {
           // Parse transaction line
           const txMatch = line.match(/\[(.*?)\]\s*([\+\-])(\d+\.?\d*)\s*€.*?-\s*(INCOME|EXPENSE)\s*-\s*(.*)/i);
@@ -892,13 +909,11 @@ const FileManager = {
         }
       }
       
-      if (currentMonth && currentTxs.length > 0) {
-        data[currentMonth] = { income: 0, expense: 0, carry: 0, tx: currentTxs };
-        // Recalculate totals
-        currentTxs.forEach(tx => {
-          if (tx.type === 'income') data[currentMonth].income += tx.amt;
-          else data[currentMonth].expense += tx.amt;
-        });
+      // Save last month
+      if (currentMonth) {
+        if (currentTxs.length > 0 || monthData.income > 0 || monthData.carry !== 0) {
+          data[currentMonth] = { ...monthData, tx: currentTxs };
+        }
       }
       
       return data;
