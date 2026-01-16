@@ -21,7 +21,7 @@
   <meta name="twitter:description" content="Track your salary and expenses with monthly carry-over balances. Secure, offline-first, no signup.">
   <title>Salary Tracker - Free Personal Expense & Income Manager</title>
   <link rel="canonical" href="https://rootdeyan.github.io/MySalaryTracker/">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2360a5fa'>₹</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%2360a5fa'>€</text></svg>">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -154,6 +154,22 @@
       min-width: 70px;
       -webkit-tap-highlight-color: transparent;
     }
+    .button-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    #menu-btn {
+      background: var(--border);
+      color: var(--text);
+      min-width: 44px;
+      padding: 8px;
+      font-size: 1.2rem;
+    }
+    #menu-btn:hover {
+      background: var(--text2);
+      color: white;
+    }
     [data-theme="light"] button {
       color: white;
       background: var(--primary);
@@ -256,10 +272,43 @@
     .indicator { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; z-index: 1000; }
     .indicator.show { display: block; animation: slideInUp 0.3s ease; }
     @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .menu-container { position: relative; display: inline-block; }
+    .menu-dropdown { 
+      display: none; 
+      position: absolute; 
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-width: 140px;
+      z-index: 1001;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+    }
+    .menu-dropdown.show { display: block; }
+    .menu-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+      border: none;
+    }
+    .menu-item:hover { background: var(--primary); color: white; }
+    .menu-item:first-child { border-radius: 7px 7px 0 0; }
+    .menu-item:last-child { border-radius: 0 0 7px 7px; }
     @media (max-width: 560px) {
       body { padding: 10px; }
       .form { padding: 12px; flex-direction: column; gap: 8px; }
-      input, select, button { width: 100%; max-height: 44px; font-size: 16px; padding: 12px; }
+      input, select { width: 100%; max-height: 44px; font-size: 16px; padding: 12px; }
+      .button-group { width: 100%; display: flex; gap: 8px; }
+      #add { flex: 1; max-height: 44px; font-size: 16px; padding: 12px; }
+      #menu-btn { flex: 0 0 auto; max-height: 44px; padding: 12px; }
       .row {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
@@ -294,7 +343,23 @@
       <option value="income">Income</option>
       <option value="expense">Expense</option>
     </select>
-    <button id="add" aria-label="Add transaction">Add</button>
+    <div class="button-group">
+      <button id="add" aria-label="Add transaction">Add</button>
+      <div class="menu-container">
+        <button id="menu-btn" aria-label="Data backup menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+          </svg>
+        </button>
+        <div id="menu-dropdown" class="menu-dropdown">
+          <button class="menu-item" onclick="FileManager.exportToTxt()">💾 Download</button>
+          <button class="menu-item" onclick="document.getElementById('file-input').click()">📤 Upload</button>
+        </div>
+      </div>
+    </div>
+    <input id="file-input" type="file" accept=".txt" style="display: none;">
   </div>
   <div id="months" role="region" aria-label="Transactions by month"></div>
   <div id="indicator" class="indicator" role="status" aria-live="polite"></div>
@@ -674,10 +739,193 @@ const Theme = {
   }
 };
 
+// Export/Import Management
+const FileManager = {
+  exportToTxt() {
+    try {
+      const data = STATE.months;
+      let txtContent = 'SALARY TRACKER BACKUP - ' + new Date().toLocaleString() + '\n';
+      txtContent += '=' .repeat(50) + '\n\n';
+      
+      const keys = Object.keys(data).sort();
+      keys.forEach(monthKey => {
+        const m = data[monthKey];
+        const final = m.carry + m.income - m.expense;
+        const bgnTotal = Formatter.convertToBGN(final);
+        
+        txtContent += `MONTH: ${monthKey}\n`;
+        txtContent += '-' .repeat(40) + '\n';
+        txtContent += `Carry from previous: ${m.carry.toFixed(2)} €\n`;
+        txtContent += `Total Income: ${m.income.toFixed(2)} €\n`;
+        txtContent += `Total Expense: ${m.expense.toFixed(2)} €\n`;
+        txtContent += `Final Balance: ${final.toFixed(2)} € (≈ ${bgnTotal} BGN)\n\n`;
+        
+        txtContent += 'TRANSACTIONS:\n';
+        if (m.tx.length === 0) {
+          txtContent += '  (No transactions)\n';
+        } else {
+          m.tx.forEach(t => {
+            const dateStr = Formatter.formatDate(t.ts);
+            const bgnAmt = Formatter.convertToBGN(t.amt);
+            const sign = t.type === 'income' ? '+' : '-';
+            txtContent += `  [${dateStr}] ${sign}${t.amt.toFixed(2)} € (≈ ${bgnAmt} BGN) - ${t.type.toUpperCase()} - ${t.desc}\n`;
+          });
+        }
+        txtContent += '\n' + '='.repeat(50) + '\n\n';
+      });
+      
+      // Create and download file
+      const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const year = String(now.getFullYear()).slice(-2);
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      link.download = `ST-${month}/${day}/${year}-${hours}.${minutes}.${seconds}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+      DataManager.showIndicator('Data exported successfully', 'success');
+    } catch (e) {
+      console.error('Export error:', e);
+      DataManager.showIndicator('Export failed', 'error');
+    }
+  },
+  
+  importFromTxt(file) {
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        const importedData = this.parseTxtContent(content);
+        
+        if (!importedData || Object.keys(importedData).length === 0) {
+          DataManager.showIndicator('Invalid file format', 'error');
+          return;
+        }
+        
+        if (confirm('This will merge the imported data with existing data. Continue?')) {
+          // Merge data
+          Object.keys(importedData).forEach(monthKey => {
+            const imported = importedData[monthKey];
+            const existing = STATE.months[monthKey];
+            
+            if (!existing) {
+              STATE.months[monthKey] = imported;
+            } else {
+              // Merge transactions, avoiding duplicates based on timestamp and amount
+              const existingTxs = existing.tx || [];
+              const importedTxs = imported.tx || [];
+              
+              importedTxs.forEach(iTx => {
+                const isDuplicate = existingTxs.some(eTx => 
+                  eTx.ts === iTx.ts && eTx.amt === iTx.amt && eTx.type === iTx.type && eTx.desc === iTx.desc
+                );
+                if (!isDuplicate) {
+                  existingTxs.unshift(iTx);
+                  if (iTx.type === 'income') existing.income += iTx.amt;
+                  else existing.expense += iTx.amt;
+                }
+              });
+              existing.tx = existingTxs;
+            }
+          });
+          
+          DataManager.save();
+          UI.render();
+          DataManager.showIndicator('Data imported successfully', 'success');
+        }
+      };
+      reader.readAsText(file);
+    } catch (e) {
+      console.error('Import error:', e);
+      DataManager.showIndicator('Import failed', 'error');
+    }
+  },
+  
+  parseTxtContent(content) {
+    try {
+      const lines = content.split('\n');
+      const data = {};
+      let currentMonth = null;
+      let currentTxs = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line.startsWith('MONTH:')) {
+          if (currentMonth) {
+            data[currentMonth] = currentTxs;
+          }
+          currentMonth = line.replace('MONTH:', '').trim();
+          currentTxs = [];
+        } else if (line.startsWith('[') && line.includes(']') && currentMonth) {
+          // Parse transaction line
+          const txMatch = line.match(/\[(.*?)\]\s*([\+\-])(\d+\.?\d*)\s*€.*?-\s*(INCOME|EXPENSE)\s*-\s*(.*)/i);
+          if (txMatch) {
+            const [, dateStr, sign, amount, type, desc] = txMatch;
+            try {
+              const date = new Date(dateStr);
+              if (!isNaN(date.getTime())) {
+                currentTxs.push({
+                  desc: desc.trim(),
+                  amt: parseFloat(amount),
+                  type: type.toLowerCase(),
+                  ts: date.getTime()
+                });
+              }
+            } catch (e) {
+              console.warn('Could not parse transaction:', line);
+            }
+          }
+        }
+      }
+      
+      if (currentMonth && currentTxs.length > 0) {
+        data[currentMonth] = { income: 0, expense: 0, carry: 0, tx: currentTxs };
+        // Recalculate totals
+        currentTxs.forEach(tx => {
+          if (tx.type === 'income') data[currentMonth].income += tx.amt;
+          else data[currentMonth].expense += tx.amt;
+        });
+      }
+      
+      return data;
+    } catch (e) {
+      console.error('Parse error:', e);
+      return null;
+    }
+  }
+};
+
 // Event Listeners
 document.getElementById('add').addEventListener('click', () => UI.addTransaction());
 document.getElementById('amount').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') UI.addTransaction();
+});
+document.getElementById('menu-btn').addEventListener('click', () => {
+  const dropdown = document.getElementById('menu-dropdown');
+  dropdown.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('menu-dropdown');
+  const menuContainer = document.querySelector('.menu-container');
+  if (!menuContainer.contains(e.target)) {
+    dropdown.classList.remove('show');
+  }
+});
+document.getElementById('file-input').addEventListener('change', (e) => {
+  if (e.target.files[0]) {
+    FileManager.importFromTxt(e.target.files[0]);
+    e.target.value = ''; // Reset file input
+  }
+  document.getElementById('menu-dropdown').classList.remove('show');
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && STATE.editing) {
