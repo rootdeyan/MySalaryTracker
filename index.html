@@ -60,20 +60,20 @@
       --expense-bg: rgba(248, 113, 113, 0.1);
     }
     [data-theme="light"] {
-      --bg: #e5e7eb;
-      --surface: #f3f4f6;
-      --text: #111827;
-      --text2: #4b5563;
+      --bg: #f0f1f3;
+      --surface: #e8eaed;
+      --text: #1a1a1a;
+      --text2: #5a5a5a;
       --primary: #3b82f6;
       --income: #10b981;
       --income-rgb: 16, 185, 129;
       --expense: #ef4444;
       --expense-rgb: 239, 68, 68;
-      --border: #d1d5db;
+      --border: #d0d4d9;
       --edit: #1e40af;
       --delete: #dc2626;
-      --income-bg: rgba(16, 185, 129, 0.1);
-      --expense-bg: rgba(239, 68, 68, 0.1);
+      --income-bg: rgba(16, 185, 129, 0.15);
+      --expense-bg: rgba(239, 68, 68, 0.15);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -211,9 +211,19 @@
       color: var(--income);
     }
     
+    [data-theme="light"] .income-select {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: #047857;
+    }
+    
     .income-select:hover {
       background-color: rgba(52, 211, 153, 0.15);
       box-shadow: 0 4px 16px rgba(52, 211, 153, 0.2);
+    }
+    
+    [data-theme="light"] .income-select:hover {
+      background-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
     }
     
     .expense-select {
@@ -222,9 +232,19 @@
       color: var(--expense);
     }
     
+    [data-theme="light"] .expense-select {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #b91c1c;
+    }
+    
     .expense-select:hover {
       background-color: rgba(248, 113, 113, 0.15);
       box-shadow: 0 4px 16px rgba(248, 113, 113, 0.2);
+    }
+    
+    [data-theme="light"] .expense-select:hover {
+      background-color: rgba(239, 68, 68, 0.3);
+      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
     }
     
     #type option {
